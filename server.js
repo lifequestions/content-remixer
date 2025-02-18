@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import { remixContent } from './src/api/remix.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 let PORT = 3002;
@@ -9,18 +12,20 @@ app.use(cors());
 app.use(express.json());
 
 app.post('/api/remix', async (req, res) => {
+  console.log('Received remix request');
   try {
     const { content } = req.body;
-    if (!content) {
-      return res.status(400).json({ error: 'Content is required' });
-    }
+    console.log('Request content:', content);
     
-    console.log('Processing content:', content.substring(0, 50) + '...');
     const result = await remixContent(content);
-    res.json(result);
+    console.log('Remix result before sending:', result);
+    
+    return res.json(result);
   } catch (error) {
     console.error('Server error:', error);
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ 
+      error: error.message || 'Internal server error' 
+    });
   }
 });
 
